@@ -1,0 +1,169 @@
+{
+  "channels": [
+    {
+      "id": 3,
+      "name": "Paid Search",
+      "imprPer1k": 30000,
+      "ctr": 3.2,
+      "cvr": 4.1,
+      "arpu": 34,
+      "budgets": [
+        20720,
+        34535,
+        42270,
+        38125,
+        40060,
+        20170,
+        17405,
+        27630,
+        29840,
+        31775,
+        35365,
+        22105
+      ],
+      "isGroup": true,
+      "parentId": null
+    },
+    {
+      "id": 7,
+      "name": "Google",
+      "imprPer1k": 30000,
+      "ctr": 3.2,
+      "cvr": 4.1,
+      "arpu": 18,
+      "budgets": [
+        14504,
+        24175,
+        29589,
+        26688,
+        28042,
+        14119,
+        12184,
+        19341,
+        20888,
+        22243,
+        24756,
+        15474
+      ],
+      "isGroup": false,
+      "parentId": 3
+    },
+    {
+      "id": 8,
+      "name": "Bing",
+      "imprPer1k": 30000,
+      "ctr": 3.2,
+      "cvr": 4.1,
+      "arpu": 18,
+      "budgets": [
+        6216,
+        10360,
+        12681,
+        11437,
+        12018,
+        6051,
+        5221,
+        8289,
+        8952,
+        9532,
+        10609,
+        6631
+      ],
+      "isGroup": false,
+      "parentId": 3
+    },
+    {
+      "id": 4,
+      "name": "Paid Social",
+      "imprPer1k": 115000,
+      "ctr": 1.4,
+      "cvr": 2.8,
+      "arpu": 18,
+      "budgets": [
+        15540,
+        25900,
+        31705,
+        28595,
+        30045,
+        15125,
+        13055,
+        20720,
+        22380,
+        23830,
+        26525,
+        16580
+      ],
+      "isGroup": false,
+      "parentId": null
+    },
+    {
+      "id": 5,
+      "name": "Display",
+      "imprPer1k": 200000,
+      "ctr": 0.35,
+      "cvr": 1.5,
+      "arpu": 18,
+      "budgets": [
+        10360,
+        17270,
+        21135,
+        19065,
+        20030,
+        10085,
+        8705,
+        13815,
+        14920,
+        15885,
+        17680,
+        11050
+      ],
+      "isGroup": false,
+      "parentId": null
+    },
+    {
+      "id": 6,
+      "name": "Programmatic",
+      "imprPer1k": 150000,
+      "ctr": 0.5,
+      "cvr": 1.8,
+      "arpu": 18,
+      "budgets": [
+        5180,
+        8635,
+        10570,
+        9530,
+        10015,
+        5040,
+        4350,
+        6905,
+        7460,
+        7945,
+        8840,
+        5530
+      ],
+      "isGroup": false,
+      "parentId": null
+    }
+  ],
+  "nextId": 9,
+  "ltv": {
+    "enabled": true,
+    "lag": 1,
+    "pct3m": 36,
+    "pct6m": 44,
+    "pct12m": 20
+  },
+  "tail": {
+    "enabled": true
+  },
+  "arpuPeriod": {
+    "days": 30,
+    "label": "30 days",
+    "isCustom": false
+  },
+  "roiMode": "multiplier",
+  "clientName": "Test",
+  "targetBudget": 900000,
+  "seasonSnap5": true,
+  "currency": "£"
+}
