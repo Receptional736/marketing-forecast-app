@@ -1,13 +1,16 @@
-// Express server that wraps the built Observable Framework site with:
-//   - IP allowlist gating (Cloud Run XFF-aware, supports CIDR via ipaddr.js)
+// Express server that serves the marketing forecast HTML app behind an
+// IP allowlist. The app is a single self-contained HTML file in public/
+// — no build step, no framework — so this server's only jobs are:
+//   - gate requests by IP (Cloud Run XFF-aware; CIDR via ipaddr.js)
+//   - serve public/ as a static site
 //
-// The forecast app is fully client-side — no live data endpoints are needed
-// in this phase. The multi-forecast save/load manager (planned next) will
-// add /api/forecasts endpoints backed by GCS.
+// Phase 2 will add /api/forecasts endpoints (multi-forecast save/load
+// backed by GCS); when it lands, the express.json middleware and route
+// handlers go in this same file alongside the static handler.
 //
 // Local development runs without restriction (ALLOWED_IPS unset) so
-// `npm run dev` and `node server.js` behave the same as before. Production
-// on Cloud Run sets ALLOWED_IPS=ip1,cidr2,... via env var.
+// `node server.js` behaves like a plain static server. Production on
+// Cloud Run sets ALLOWED_IPS=ip1,cidr2,... via env var.
 
 import express from "express";
 import path from "node:path";
@@ -15,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import ipaddr from "ipaddr.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIST = path.join(__dirname, "dist");
+const PUBLIC = path.join(__dirname, "public");
 
 const app = express();
 
@@ -78,9 +81,9 @@ function ipAllowlist(req, res, next) {
 app.use(ipAllowlist);
 
 // ── Static site ────────────────────────────────────────────────────────
-app.use(express.static(DIST, { extensions: ["html"] }));
+app.use(express.static(PUBLIC, { extensions: ["html"] }));
 // 404 fallback serves the dashboard so typos still land somewhere useful.
-app.use((_req, res) => res.status(404).sendFile(path.join(DIST, "index.html")));
+app.use((_req, res) => res.status(404).sendFile(path.join(PUBLIC, "index.html")));
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {

@@ -2,15 +2,12 @@
 # and the image small — and avoids leaking local-only state into the image.
 
 node_modules
-dist
 .git
 .gitignore
 .DS_Store
 *.log
 .env
 .env.*
-.observablehq
-src/.observablehq
 
 # Markdown docs that aren't needed at runtime
 README.md

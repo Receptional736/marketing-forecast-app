@@ -1,7 +1,4 @@
 node_modules/
-dist/
-.observablehq/
-src/.observablehq/cache/
 .env
 *.local
 .DS_Store

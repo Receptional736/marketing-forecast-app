@@ -1,26 +1,12 @@
----
-theme: dark
-title: Marketing Forecast
-toc: false
-sidebar: false
----
-
-<style>
-  /* Framework reserves a 272px gutter for the sidebar and 192px for the
-     table of contents even when both are disabled in observablehq.config.js
-     (sidebar: false, toc: false). Zero them so the forecast app uses the
-     full viewport width, the way the original single-file HTML did. */
-  #observablehq-center { margin: 0 !important; padding: 0 !important; }
-  #observablehq-main { padding-right: 0 !important; margin: 0 auto !important; max-width: none !important; }
-  /* The forecast app sets its own body styles below; let them through. */
-  body { background: #010E21 !important; }
-</style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<style>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketing ROI Forecaster v17</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -1244,10 +1230,9 @@ sidebar: false
     .onboard-dot { width: 7px; height: 7px; border-radius: 50%; background: #1A2A3F; transition: background .2s; }
     .onboard-dot.active { background: #00E5FF; }
     .onboard-dot.done { background: #00E5FF; }
-  
-</style>
-
-
+  </style>
+</head>
+<body>
 
 <header>
   <div>
@@ -6992,4 +6977,5 @@ function cpcDeleteCustomShape(shapeName) {
 
 
 </script>
-
+</body>
+</html>
