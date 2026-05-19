@@ -4,9 +4,9 @@ Internal dashboard hosting the marketing budget forecaster for iGaming client pi
 
 > **Stack note.** The other Receptional Dashboards in this folder (Lotto Max, AI Visibility, Organic Performance) use Observable Framework because they need live data loaders. The forecast app is fully client-side (Chart.js and SheetJS from CDN), so Framework added build-time complexity without any runtime benefit. This project skips Framework entirely and serves `public/index.html` byte-identical to the standalone file. The Cloud Run / IP-allowlist / repo conventions from `../CLAUDE.md` still apply.
 
-> **Phase 1 (current).** Port v37 behind the IP gate so it's reachable on a stable URL. The existing in-app JSON export/import remains the way to save and load forecasts.
->
-> **Phase 2 (next).** Replace JSON export/import with a multi-forecast manager: server-side named saves backed by GCS, `/api/forecasts` endpoints, and a Forecasts dropdown in the app's toolbar. Adding endpoints to `server.js` is straightforward; no build step changes.
+**Forecast manager (Phase 2).** Adds a **📁 Forecasts ▾** dropdown to the toolbar that lets the team save, load, rename, and delete named forecasts — replacing the JSON export/import as the primary save mechanism. Backed by GCS; one object per forecast at `forecasts/<id>.json` in `FORECASTS_BUCKET`. The existing 💾 Save JSON / 📂 Load JSON buttons stay as a manual backup.
+
+The Forecasts UI is provided by `public/forecasts-manager.js`, which the server injects at runtime via a `<script>` tag and a label rewrite (`Save → Save JSON`, `Load → Load JSON`). Future v38+ snapshots drop into `public/index.html` and pick up the feature without any HTML edits.
 
 ---
 
@@ -30,9 +30,47 @@ Mirrors what runs on Cloud Run.
 
 ---
 
+## One-time GCS setup for the Forecasts manager
+
+The Forecasts dropdown needs a bucket to write to and an IAM grant on the runtime service account. Do these once; the deploy block below references `FORECASTS_BUCKET=marketing-forecast-app-state`.
+
+```powershell
+# 1. Bucket. Globally unique name — if taken, add a suffix and update
+#    FORECASTS_BUCKET on deploy to match.
+gcloud storage buckets create gs://marketing-forecast-app-state `
+  --location=europe-west2 `
+  --uniform-bucket-level-access
+
+# 2. 90-day lifecycle rule. Each save replaces the object, which resets
+#    the creation time — so a forecast lives indefinitely as long as
+#    someone touches it within 90 days. Truly stale ones get cleaned up.
+@'
+{
+  "lifecycle": {
+    "rule": [
+      { "action": {"type": "Delete"}, "condition": {"age": 90} }
+    ]
+  }
+}
+'@ | Out-File -Encoding utf8 lifecycle.json
+
+gcloud storage buckets update gs://marketing-forecast-app-state `
+  --lifecycle-file=lifecycle.json
+Remove-Item lifecycle.json
+
+# 3. Grant the runtime service account read/write on this bucket only.
+gcloud storage buckets add-iam-policy-binding gs://marketing-forecast-app-state `
+  --member="serviceAccount:marketing-forecast-app@client-monthly-report-mcp.iam.gserviceaccount.com" `
+  --role="roles/storage.objectAdmin"
+```
+
+Cost is effectively zero (one tiny JSON per save, <$0.05/month even with thousands of forecasts). If you ever want to disable the feature, unset `FORECASTS_BUCKET` on the next deploy — the endpoints will return 503 and the UI surfaces "shared forecasts unavailable" while the rest of the app keeps working.
+
+---
+
 ## Deploying to Cloud Run
 
-The dashboard runs as Cloud Run service `marketing-forecast-app` in `client-monthly-report-mcp` / `europe-west2`. The runtime service account `marketing-forecast-app@client-monthly-report-mcp.iam.gserviceaccount.com` already exists (it has no roles in Phase 1; Phase 2 will add Storage Object Admin on a forecasts bucket).
+The dashboard runs as Cloud Run service `marketing-forecast-app` in `client-monthly-report-mcp` / `europe-west2`. The runtime service account `marketing-forecast-app@client-monthly-report-mcp.iam.gserviceaccount.com` already exists.
 
 > **Always follow the deployment process** — commit + push before deploy, stamp the revision with the commit SHA. The reasoning lives in [../CLAUDE.md](../CLAUDE.md); the command below already includes the SHA stamp.
 
@@ -49,11 +87,13 @@ gcloud run deploy marketing-forecast-app `
   --cpu 1 `
   --min-instances 0 `
   --max-instances 2 `
-  --update-env-vars "ALLOWED_IPS=185.121.137.248" `
+  --update-env-vars "^|^ALLOWED_IPS=185.121.137.248|FORECASTS_BUCKET=marketing-forecast-app-state" `
   --update-labels "git-sha=$(git rev-parse --short HEAD)"
 ```
 
 Takes 1–2 minutes (no Framework build, just a small image). Cloud Build runs in the cloud.
+
+The `^|^` prefix tells gcloud to use `|` as the env-var separator instead of `,` so commas inside `ALLOWED_IPS` aren't mis-parsed as flag delimiters.
 
 ### Updating the allowlist
 
@@ -87,10 +127,11 @@ gcloud run services update-traffic marketing-forecast-app \
 ├─ Dockerfile               # Single-stage: just Node + express + the static file
 ├─ .dockerignore
 ├─ package.json
-├─ server.js                # IP allowlist + static serve of public/
+├─ server.js                # IP allowlist + /api/forecasts CRUD + static serve
 ├─ docs/                    # CHANGELOG / spec / sample forecast JSON — not shipped
 └─ public/
-   └─ index.html            # The forecast app (marketing-forecast-v37.html)
+   ├─ index.html            # The forecast app (marketing-forecast-v37.html)
+   └─ forecasts-manager.js  # Forecasts dropdown UI; injected by server at runtime
 ```
 
 ## Updating to a newer v37+ snapshot
