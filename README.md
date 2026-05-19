@@ -4,9 +4,9 @@ Internal dashboard hosting the marketing budget forecaster for iGaming client pi
 
 > **Stack note.** The other Receptional Dashboards in this folder (Lotto Max, AI Visibility, Organic Performance) use Observable Framework because they need live data loaders. The forecast app is fully client-side (Chart.js and SheetJS from CDN), so Framework added build-time complexity without any runtime benefit. This project skips Framework entirely and serves `public/index.html` byte-identical to the standalone file. The Cloud Run / IP-allowlist / repo conventions from `../CLAUDE.md` still apply.
 
-**Forecast manager (Phase 2).** Adds a **📁 Forecasts ▾** dropdown to the toolbar that lets the team save, load, rename, and delete named forecasts — replacing the JSON export/import as the primary save mechanism. Backed by GCS; one object per forecast at `forecasts/<id>.json` in `FORECASTS_BUCKET`. The existing 💾 Save JSON / 📂 Load JSON buttons stay as a manual backup.
+**Forecast manager (Phase 2).** Adds a **📁 Forecasts ▾** dropdown to the toolbar that lets the team save, load, rename, and delete named forecasts — replacing the JSON export/import as the primary save mechanism. Backed by GCS; one object per forecast at `forecasts/<id>.json` in `FORECASTS_BUCKET`. The existing **📤 Download JSON** / **📥 Upload JSON** buttons stay as a manual file backup.
 
-The Forecasts UI is provided by `public/forecasts-manager.js`, which the server injects at runtime via a `<script>` tag and a label rewrite (`Save → Save JSON`, `Load → Load JSON`). Future v38+ snapshots drop into `public/index.html` and pick up the feature without any HTML edits.
+The Forecasts UI is provided by `public/forecasts-manager.js`, which the server injects at runtime via a `<script>` tag and relabels the legacy v37 toolbar buttons (`💾 Save → 📤 Download JSON`, `📂 Load → 📥 Upload JSON`). Future v38+ snapshots drop into `public/index.html` and pick up the feature without any HTML edits.
 
 ---
 

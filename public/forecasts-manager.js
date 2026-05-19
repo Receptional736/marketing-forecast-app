@@ -133,7 +133,7 @@
     }
     .fm-loaded-indicator.dirty { background: #FF9100; color: #010E21; }
     .fm-dropdown {
-      position: absolute; top: calc(100% + 6px); right: 0; min-width: 320px;
+      position: fixed; min-width: 320px;
       max-width: 440px; max-height: 70vh; overflow-y: auto;
       background: #0A1628; border: 1px solid #1A2A3F; border-radius: 10px;
       box-shadow: 0 12px 36px rgba(0,0,0,0.45); padding: 6px;
@@ -221,6 +221,20 @@
     setInterval(renderButtonLabel, 1000);
   }
 
+  let repositionHandler = null;
+
+  function positionDropdown() {
+    if (!dropdownEl || !buttonEl) return;
+    const r = buttonEl.getBoundingClientRect();
+    // Pin the dropdown's right edge to the button's right edge; let max-width
+    // and min-width drive the actual width. Top sits 6px below the button.
+    const top = Math.round(r.bottom + 6);
+    const right = Math.round(window.innerWidth - r.right);
+    dropdownEl.style.top = `${top}px`;
+    dropdownEl.style.right = `${right}px`;
+    dropdownEl.style.left = "auto";
+  }
+
   function closeDropdown() {
     if (!dropdownEl) return;
     dropdownEl.remove();
@@ -229,20 +243,41 @@
       document.removeEventListener("mousedown", outsideHandler, true);
       outsideHandler = null;
     }
+    if (repositionHandler) {
+      window.removeEventListener("scroll", repositionHandler, true);
+      window.removeEventListener("resize", repositionHandler);
+      repositionHandler = null;
+    }
   }
 
-  function toggleDropdown() {
+  function toggleDropdown(ev) {
+    // Stop the button's click from bubbling so subsequent listeners (e.g.
+    // v37's global kpiPopover close-on-click) don't run and so a parent
+    // never sees our toggle click.
+    if (ev) ev.stopPropagation();
     if (dropdownEl) { closeDropdown(); return; }
     openDropdown();
   }
 
   async function openDropdown() {
+    // Mount on <body>, not inside the button, so clicks in the dropdown
+    // don't bubble back to the button's onclick (which would re-toggle).
     dropdownEl = el("div", { class: "fm-dropdown" });
-    buttonEl.appendChild(dropdownEl);
+    document.body.appendChild(dropdownEl);
+    positionDropdown();
 
-    // Close on outside click. Uses capture so we beat any inner handlers.
+    repositionHandler = () => positionDropdown();
+    window.addEventListener("scroll", repositionHandler, true);
+    window.addEventListener("resize", repositionHandler);
+
+    // Close on outside click. "Outside" means: not inside the button, and
+    // not inside the dropdown itself. Capture phase so we run before any
+    // inner handlers can call stopPropagation.
     outsideHandler = (ev) => {
-      if (dropdownEl && !buttonEl.contains(ev.target)) closeDropdown();
+      if (!dropdownEl) return;
+      if (buttonEl.contains(ev.target)) return;
+      if (dropdownEl.contains(ev.target)) return;
+      closeDropdown();
     };
     document.addEventListener("mousedown", outsideHandler, true);
 

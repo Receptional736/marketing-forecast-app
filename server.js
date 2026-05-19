@@ -324,8 +324,12 @@ function transformIndex(html) {
   let out = html;
   let warned = false;
   const replacements = [
-    [">\n      💾 Save\n    <", ">\n      💾 Save JSON\n    <"],
-    [">\n      📂 Load\n      <", ">\n      📂 Load JSON\n      <"]
+    // Relabel the legacy v37 toolbar buttons so they're not confused with
+    // the new server-backed Save in the Forecasts dropdown. "Download" =
+    // file leaves the app and arrives on your disk (out-tray). "Upload" =
+    // file leaves your disk and arrives in the app (in-tray).
+    [">\n      💾 Save\n    <",   ">\n      📤 Download JSON\n    <"],
+    [">\n      📂 Load\n      <", ">\n      📥 Upload JSON\n      <"]
   ];
   for (const [from, to] of replacements) {
     if (!out.includes(from)) {
