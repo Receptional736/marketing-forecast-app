@@ -87,7 +87,7 @@ gcloud run deploy marketing-forecast-app `
   --cpu 1 `
   --min-instances 0 `
   --max-instances 2 `
-  --update-env-vars "^|^ALLOWED_IPS=185.121.137.248|FORECASTS_BUCKET=marketing-forecast-app-state" `
+  --update-env-vars "^|^ALLOWED_IPS=185.121.137.248,94.30.113.47|FORECASTS_BUCKET=marketing-forecast-app-state" `
   --update-labels "git-sha=$(git rev-parse --short HEAD)"
 ```
 
@@ -100,7 +100,7 @@ The `^|^` prefix tells gcloud to use `|` as the env-var separator instead of `,`
 ```powershell
 gcloud run services update marketing-forecast-app `
   --region europe-west2 `
-  --update-env-vars "^|^ALLOWED_IPS=185.121.137.248,203.0.113.5"
+  --update-env-vars "^|^ALLOWED_IPS=185.121.137.248,94.30.113.47,203.0.113.5"
 ```
 
 ### Logs
